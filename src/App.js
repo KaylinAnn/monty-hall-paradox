@@ -150,9 +150,29 @@ class App extends Component {
       <div className="App">
         <h1 className="title">Monty Hall's Paradox</h1>
         <div className="doors-container">
-          <div className="door-one doors" />
-          <div className="door-two doors" />
-          <div className="door-three doors"> </div>
+          <div
+            className={
+              this.state.openedDoor !== 0 && this.state.openedDoor === 1
+                ? "remove-door"
+                : "door-one doors"
+            }
+          />
+          <div
+            className={
+              this.state.openedDoor !== 0 && this.state.openedDoor === 2
+                ? "remove-door"
+                : "door-two doors"
+            }
+          />
+          <div
+            className={
+              this.state.openedDoor !== 0 && this.state.openedDoor === 3
+                ? "remove-door"
+                : "door-three doors"
+            }
+          >
+            {" "}
+          </div>
         </div>
         <div className="button-container">
           <button
@@ -184,7 +204,7 @@ class App extends Component {
             DOOR TWO
           </button>
           <button
-            className="button-door-three door-buttons "
+            className="button-door-three door-buttons"
             value={3}
             onClick={e => {
               this.addUserInput();

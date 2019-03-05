@@ -44,3 +44,24 @@
   justify-content: space-evenly;
   width: 95%;
 }
+
+.remove-door {
+  background: rgb(255, 255, 255);
+  border: 4px solid black;
+  height: 500px;
+  width: 250px;
+}
+
+.remove-door::before {
+  -webkit-animation: fadein 3s; /* Safari, Chrome and Opera > 12.1 */
+  animation: fadein 3s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
