@@ -12,6 +12,34 @@
   width: 85%;
 }
 
+.title-container {
+  margin: 0 auto;
+  display: flex;
+  align-content: center;
+  justify-content: space-evenly;
+  width: 80%;
+}
+
+.titles {
+  margin: 0 auto;
+  display: flex;
+  align-content: center;
+  justify-content: space-evenly;
+  width: 85%;
+}
+
+.user-pick {
+  font-size: 40px;
+}
+
+.hide-buttons {
+  display: none;
+}
+
+.no-title {
+  display: none;
+}
+
 .doors {
   border: 4px solid black;
   height: 500px;
@@ -36,6 +64,10 @@
   background-size: 250px 500px;
 }
 
+.empty {
+  display: none;
+}
+
 .button-container {
   margin: 0 auto;
   padding-top: 20px;
@@ -52,7 +84,7 @@
   width: 250px;
 }
 
-.remove-door::before {
+.remove-door {
   -webkit-animation: fadein 3s; /* Safari, Chrome and Opera > 12.1 */
   animation: fadein 3s;
 }

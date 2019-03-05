@@ -5,6 +5,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      prizeDoor: 0,
       doorOne: null,
       doorTwo: null,
       doorThree: null,
@@ -13,7 +14,8 @@ class App extends Component {
       openedDoor: 0,
       nullArr: [],
       doors: [],
-      usersFinalDoor: 0
+      usersFinalDoor: 0,
+      winner: null
     };
   }
 
@@ -26,15 +28,18 @@ class App extends Component {
     console.log("door with prize", randomNum);
     if (randomNum === 1) {
       this.setState({
-        doorOne: "Prize"
+        doorOne: "Prize",
+        prizeDoor: 1
       });
     } else if (randomNum === 2) {
       this.setState({
-        doorTwo: "Prize"
+        doorTwo: "Prize",
+        prizeDoor: 2
       });
     } else {
       this.setState({
-        doorThree: "Prize"
+        doorThree: "Prize",
+        prizeDoor: 3
       });
     }
   }
@@ -73,12 +78,6 @@ class App extends Component {
     }
   }
 
-  setDoorsArray() {
-    this.setState({
-      doors: [this.state.doorOne, this.state.doorTwo, this.state.doorThree]
-    });
-  }
-
   addUserInput() {
     this.setState({
       userPicked: true
@@ -106,14 +105,33 @@ class App extends Component {
     if (this.state.nullArr.length === 1) {
       this.state.doors.map((e, i) => {
         if (e === "Prize") {
-          this.setState({ usersFinalDoor: i + 1 });
+          this.setState({ usersFinalDoor: i + 1, switched: true }, () => {
+            this.endGame();
+          });
+        }
+      });
+    } else {
+      this.state.nullArr.map(e => {
+        if (e !== this.state.openedDoor - 1) {
+          this.setState({ usersFinalDoor: e + 1, switched: true }, () => {
+            this.endGame();
+          });
         }
       });
     }
   }
 
+  endGame() {
+    if (this.state.usersFinalDoor === this.state.prizeDoor) {
+      this.setState({ winner: true });
+    } else if (this.state.usersFinalDoor !== this.state.prizeDoor) {
+      this.setState({ winner: false });
+    }
+  }
+
   resetDoors() {
     this.setState({
+      prizeDoor: 0,
       doorOne: null,
       doorTwo: null,
       doorThree: null,
@@ -121,7 +139,8 @@ class App extends Component {
       userPicked: false,
       doors: [],
       openedDoor: 0,
-      usersFinalDoor: 0
+      usersFinalDoor: 0,
+      winner: null
     });
     this.randomizedPrizeDoor();
   }
@@ -135,12 +154,66 @@ class App extends Component {
     console.log("nullArr", this.state.nullArr);
     console.log("openedDoor ", this.state.openedDoor);
     console.log("final pick ", this.state.usersFinalDoor);
+    console.log("winner ", this.state.winner);
 
     const userHasPicked =
-      this.state.userPicked === true && this.state.openedDoor !== 0 ? (
+      this.state.userPicked === true &&
+      this.state.openedDoor !== 0 &&
+      this.state.winner === null ? (
         <div className="switch-container">
           <button onClick={e => this.switchUsersPick()}>SWITCH</button>
-          <button>CONTINUE</button>
+          <button onClick={e => this.endGame()}>CONTINUE</button>
+        </div>
+      ) : (
+        ""
+      );
+
+    const doorTitles =
+      this.state.userPicked === true &&
+      this.state.switched === false &&
+      this.state.winner === null ? (
+        <div className="title-container">
+          <div className="titles">
+            <h2
+              className={
+                this.state.doors[0] === "user pick" ? "users-door" : "no-title"
+              }
+            >
+              Your Pick
+            </h2>
+          </div>
+          <div className="titles">
+            <h2
+              className={
+                this.state.doors[1] === "user pick" ? "users-door" : "no-title"
+              }
+            >
+              Your Pick
+            </h2>
+          </div>
+          <div className="titles">
+            <h2
+              className={
+                this.state.doors[2] === "user pick" ? "users-door" : "no-title"
+              }
+            >
+              Your Pick
+            </h2>
+          </div>
+        </div>
+      ) : this.state.winner !== null ? (
+        <div>
+          <div>
+            <div className={this.state.winner === true ? "status" : "empty"}>
+              Winner!!
+            </div>
+            <div className={this.state.winner === false ? "status" : "empty"}>
+              Better luck next time...
+            </div>
+          </div>
+          <div>
+            <p />
+          </div>
         </div>
       ) : (
         ""
@@ -149,6 +222,25 @@ class App extends Component {
     return (
       <div className="App">
         <h1 className="title">Monty Hall's Paradox</h1>
+        <h2
+          className={this.state.userPicked === true ? "empty" : "intructions"}
+        >
+          There is a prize behind one of these door. Please choose the door you
+          think it's in.
+        </h2>
+
+        <h2
+          className={
+            this.state.userPicked === true && this.state.winner === null
+              ? "instructions"
+              : "empty"
+          }
+        >
+          I Great! I have now revealed an empty door for you. To stay with you
+          initial pick select continue or you can switch to the other unopened
+          door.
+        </h2>
+
         <div className="doors-container">
           <div
             className={
@@ -174,7 +266,14 @@ class App extends Component {
             {" "}
           </div>
         </div>
-        <div className="button-container">
+
+        <div
+          className={
+            this.state.userPicked === false
+              ? "button-container"
+              : "hide-buttons"
+          }
+        >
           <button
             className="button-door-one door-buttons"
             value={1}
@@ -218,8 +317,9 @@ class App extends Component {
             DOOR THREE
           </button>
         </div>
+        {doorTitles}
         <button className="reset-button" onClick={e => this.resetDoors()}>
-          RESET
+          RESET DOORS
         </button>
         {userHasPicked}
       </div>
