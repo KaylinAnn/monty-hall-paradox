@@ -205,10 +205,11 @@ class App extends Component {
         <div>
           <div>
             <div className={this.state.winner === true ? "status" : "empty"}>
-              Winner!!
+              Congrats!! Door {this.state.prizeDoor} is correct.
             </div>
             <div className={this.state.winner === false ? "status" : "empty"}>
-              Better luck next time...
+              Door {this.state.prizeDoor} had the prize. Better luck next
+              time...
             </div>
           </div>
           <div>
@@ -223,7 +224,7 @@ class App extends Component {
       <div className="App">
         <h1 className="title">Monty Hall's Paradox</h1>
         <h2
-          className={this.state.userPicked === true ? "empty" : "intructions"}
+          className={this.state.userPicked === true ? "empty" : "instructions"}
         >
           There is a prize behind one of these door. Please choose the door you
           think it's in.
@@ -240,7 +241,7 @@ class App extends Component {
           initial pick select continue or you can switch to the other unopened
           door.
         </h2>
-
+        <div>{doorTitles}</div>
         <div className="doors-container">
           <div
             className={
@@ -248,14 +249,18 @@ class App extends Component {
                 ? "remove-door"
                 : "door-one doors"
             }
-          />
+          >
+            1
+          </div>
           <div
             className={
               this.state.openedDoor !== 0 && this.state.openedDoor === 2
                 ? "remove-door"
                 : "door-two doors"
             }
-          />
+          >
+            2
+          </div>
           <div
             className={
               this.state.openedDoor !== 0 && this.state.openedDoor === 3
@@ -263,7 +268,7 @@ class App extends Component {
                 : "door-three doors"
             }
           >
-            {" "}
+            3
           </div>
         </div>
 
@@ -317,7 +322,7 @@ class App extends Component {
             DOOR THREE
           </button>
         </div>
-        {doorTitles}
+
         <button className="reset-button" onClick={e => this.resetDoors()}>
           RESET DOORS
         </button>
