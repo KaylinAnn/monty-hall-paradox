@@ -1,16 +1,21 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 
 class App extends Component {
-  state = {
-    doorOne: null,
-    doorTwo: null,
-    doorThree: null,
-    switched: false,
-    userPicked: false,
-    doors: []
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      doorOne: null,
+      doorTwo: null,
+      doorThree: null,
+      switched: false,
+      userPicked: false,
+      openedDoor: 0,
+      nullArr: [],
+      doors: [],
+      usersFinalDoor: 0
+    };
+  }
 
   componentDidMount() {
     this.randomizedPrizeDoor();
@@ -34,6 +39,40 @@ class App extends Component {
     }
   }
 
+  setDoorValues(props) {
+    if (Number(props) === 2) {
+      this.setState(
+        {
+          doorTwo: "user pick",
+          doors: [this.state.doorOne, "user pick", this.state.doorThree]
+        },
+        () => {
+          this.setNullArr();
+        }
+      );
+    } else if (Number(props) === 1) {
+      this.setState(
+        {
+          doorOne: "user pick",
+          doors: ["user pick", this.state.doorTwo, this.state.doorThree]
+        },
+        () => {
+          this.setNullArr();
+        }
+      );
+    } else if (Number(props) === 3) {
+      this.setState(
+        {
+          doorThree: "user pick",
+          doors: [this.state.doorOne, this.state.doorTwo, "user pick"]
+        },
+        () => {
+          this.setNullArr();
+        }
+      );
+    }
+  }
+
   setDoorsArray() {
     this.setState({
       doors: [this.state.doorOne, this.state.doorTwo, this.state.doorThree]
@@ -41,16 +80,36 @@ class App extends Component {
   }
 
   addUserInput() {
-    // const { doorOne, doorTwo, doorThree } = this.state;
-    // if (
-    //   doorOne == "user pick" ||
-    //   doorTwo == "user pick" ||
-    //   doorThree == "user pick"
-    // ) {
     this.setState({
       userPicked: true
     });
-    // }
+  }
+
+  setNullArr() {
+    let nullArr = [];
+    this.state.doors.map((e, i) => {
+      if (e === null) {
+        nullArr.push(i);
+      }
+
+      this.setState({ nullArr: nullArr }, () => this.setOpenedDoor());
+    });
+  }
+
+  setOpenedDoor() {
+    let doorToOpenIndex = Math.floor(Math.random() * this.state.nullArr.length);
+    let doorToOpen = this.state.nullArr[doorToOpenIndex] + 1;
+    this.setState({ openedDoor: doorToOpen });
+  }
+
+  switchUsersPick() {
+    if (this.state.nullArr.length === 1) {
+      this.state.doors.map((e, i) => {
+        if (e === "Prize") {
+          this.setState({ usersFinalDoor: i + 1 });
+        }
+      });
+    }
   }
 
   resetDoors() {
@@ -60,7 +119,9 @@ class App extends Component {
       doorThree: null,
       switched: false,
       userPicked: false,
-      doors: []
+      doors: [],
+      openedDoor: 0,
+      usersFinalDoor: 0
     });
     this.randomizedPrizeDoor();
   }
@@ -69,17 +130,21 @@ class App extends Component {
     console.log("door one ", this.state.doorOne);
     console.log("door two ", this.state.doorTwo);
     console.log("door three ", this.state.doorThree);
-    console.log("array ", this.state.doors);
+    console.log("doors ", this.state.doors);
     console.log("user picked", this.state.userPicked);
+    console.log("nullArr", this.state.nullArr);
+    console.log("openedDoor ", this.state.openedDoor);
+    console.log("final pick ", this.state.usersFinalDoor);
 
-    let nullArr = [];
-    this.state.doors.map((e, i) => {
-      if (e === null) {
-        nullArr.push(i);
-      }
-    });
-
-    console.log(nullArr);
+    const userHasPicked =
+      this.state.userPicked === true && this.state.openedDoor !== 0 ? (
+        <div className="switch-container">
+          <button onClick={e => this.switchUsersPick()}>SWITCH</button>
+          <button>CONTINUE</button>
+        </div>
+      ) : (
+        ""
+      );
 
     return (
       <div className="App">
@@ -92,13 +157,11 @@ class App extends Component {
         <div className="button-container">
           <button
             className="button-door-one door-buttons"
+            value={1}
             onClick={e => {
               this.addUserInput();
               if (this.state.userPicked === false) {
-                this.setState({
-                  doorOne: "user pick",
-                  doors: ["user pick", this.state.doorTwo, this.state.doorThree]
-                });
+                this.setDoorValues(e.target.value);
               } else {
                 alert("Oops! You already picked a door.");
               }
@@ -108,13 +171,11 @@ class App extends Component {
           </button>
           <button
             className="button-door-two door-buttons"
+            value={2}
             onClick={e => {
               this.addUserInput();
               if (this.state.userPicked === false) {
-                this.setState({
-                  doorTwo: "user pick",
-                  doors: [this.state.doorOne, "user pick", this.state.doorThree]
-                });
+                return this.setDoorValues(e.target.value);
               } else {
                 alert("Oops! You already picked a door.");
               }
@@ -123,14 +184,12 @@ class App extends Component {
             DOOR TWO
           </button>
           <button
-            className="button-door-three door-buttons"
+            className="button-door-three door-buttons "
+            value={3}
             onClick={e => {
               this.addUserInput();
               if (this.state.userPicked === false) {
-                this.setState({
-                  doorThree: "user pick",
-                  doors: [this.state.doorOne, this.state.doorTwo, "user pick"]
-                });
+                this.setDoorValues(e.target.value);
               } else {
                 alert("Oops! You already picked a door.");
               }
@@ -142,6 +201,7 @@ class App extends Component {
         <button className="reset-button" onClick={e => this.resetDoors()}>
           RESET
         </button>
+        {userHasPicked}
       </div>
     );
   }
