@@ -15,7 +15,9 @@ class App extends Component {
       nullArr: [],
       doors: [],
       usersFinalDoor: 0,
-      winner: null
+      winner: null,
+      switchedCount: 0,
+      stayCount: 0
     };
   }
 
@@ -25,7 +27,6 @@ class App extends Component {
 
   randomizedPrizeDoor() {
     const randomNum = Math.floor(Math.random() * 3) + 1;
-    console.log("door with prize", randomNum);
     if (randomNum === 1) {
       this.setState({
         doorOne: "Prize",
@@ -91,7 +92,7 @@ class App extends Component {
         nullArr.push(i);
       }
 
-      this.setState({ nullArr: nullArr }, () => this.setOpenedDoor());
+      return this.setState({ nullArr: nullArr }, () => this.setOpenedDoor());
     });
   }
 
@@ -105,27 +106,54 @@ class App extends Component {
     if (this.state.nullArr.length === 1) {
       this.state.doors.map((e, i) => {
         if (e === "Prize") {
-          this.setState({ usersFinalDoor: i + 1, switched: true }, () => {
-            this.endGame();
-          });
+          return this.setState(
+            { usersFinalDoor: i + 1, switched: true },
+            () => {
+              this.endGame();
+            }
+          );
         }
+        return e;
       });
     } else {
       this.state.nullArr.map(e => {
         if (e !== this.state.openedDoor - 1) {
-          this.setState({ usersFinalDoor: e + 1, switched: true }, () => {
-            this.endGame();
-          });
+          return this.setState(
+            { usersFinalDoor: e + 1, switched: true },
+            () => {
+              this.endGame();
+            }
+          );
         }
+        return e;
       });
+    }
+  }
+
+  setFinalPickwithoutSwitch() {
+    if (this.state.switched === false) {
+      this.state.doors.map((e, i) => {
+        if (e === "user pick") {
+          this.setState({ usersFinalDoor: i + 1 }, () => this.endGame());
+        }
+        return e;
+      });
+    }
+  }
+
+  tallyCount() {
+    if (this.state.winner === true && this.state.switched === true) {
+      this.setState({ switchedCount: this.state.switchedCount + 1 });
+    } else if (this.state.winner === true && this.state.switched === false) {
+      this.setState({ stayCount: this.state.stayCount + 1 });
     }
   }
 
   endGame() {
     if (this.state.usersFinalDoor === this.state.prizeDoor) {
-      this.setState({ winner: true });
+      this.setState({ winner: true }, () => this.tallyCount());
     } else if (this.state.usersFinalDoor !== this.state.prizeDoor) {
-      this.setState({ winner: false });
+      this.setState({ winner: false }, () => this.tallyCount());
     }
   }
 
@@ -145,24 +173,26 @@ class App extends Component {
     this.randomizedPrizeDoor();
   }
 
-  render() {
-    console.log("door one ", this.state.doorOne);
-    console.log("door two ", this.state.doorTwo);
-    console.log("door three ", this.state.doorThree);
-    console.log("doors ", this.state.doors);
-    console.log("user picked", this.state.userPicked);
-    console.log("nullArr", this.state.nullArr);
-    console.log("openedDoor ", this.state.openedDoor);
-    console.log("final pick ", this.state.usersFinalDoor);
-    console.log("winner ", this.state.winner);
+  resetCounts() {
+    this.setState(
+      {
+        switchedCount: 0,
+        stayCount: 0
+      },
+      () => this.resetDoors()
+    );
+  }
 
+  render() {
     const userHasPicked =
       this.state.userPicked === true &&
       this.state.openedDoor !== 0 &&
       this.state.winner === null ? (
         <div className="switch-container">
           <button onClick={e => this.switchUsersPick()}>SWITCH</button>
-          <button onClick={e => this.endGame()}>CONTINUE</button>
+          <button onClick={e => this.setFinalPickwithoutSwitch()}>
+            CONTINUE
+          </button>
         </div>
       ) : (
         ""
@@ -323,9 +353,15 @@ class App extends Component {
           </button>
         </div>
 
+        <div>
+          <h1> Switched wins = {this.state.switchedCount}</h1>
+          <h1> Stay wins = {this.state.stayCount}</h1>
+        </div>
+
         <button className="reset-button" onClick={e => this.resetDoors()}>
           RESET DOORS
         </button>
+        <button onClick={e => this.resetCounts()}>RESET WIN COUNTS</button>
         {userHasPicked}
       </div>
     );
