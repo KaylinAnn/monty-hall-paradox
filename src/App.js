@@ -16,8 +16,10 @@ class App extends Component {
       doors: [],
       usersFinalDoor: 0,
       winner: null,
+      switchedCountWins: 0,
       switchedCount: 0,
-      stayCount: 0
+      stayCount: 0,
+      stayCountWins: 0
     };
   }
 
@@ -142,10 +144,16 @@ class App extends Component {
   }
 
   tallyCount() {
-    if (this.state.winner === true && this.state.switched === true) {
+    if (this.state.switched === true) {
       this.setState({ switchedCount: this.state.switchedCount + 1 });
-    } else if (this.state.winner === true && this.state.switched === false) {
+      if (this.state.winner === true) {
+        this.setState({ switchedCountWins: this.state.switchedCountWins + 1 });
+      }
+    } else if (this.state.switched === false) {
       this.setState({ stayCount: this.state.stayCount + 1 });
+      if (this.state.winner === true) {
+        this.setState({ stayCountWins: this.state.stayCountWins + 1 });
+      }
     }
   }
 
@@ -177,7 +185,9 @@ class App extends Component {
     this.setState(
       {
         switchedCount: 0,
-        stayCount: 0
+        stayCount: 0,
+        switchedCountWins: 0,
+        stayCountWins: 0
       },
       () => this.resetDoors()
     );
@@ -354,8 +364,18 @@ class App extends Component {
         </div>
 
         <div>
-          <h1> Switched wins = {this.state.switchedCount}</h1>
-          <h1> Stay wins = {this.state.stayCount}</h1>
+          <h1> Switched wins = {this.state.switchedCountWins}</h1>
+          <h2 className={this.state.switchedCount === 0 ? "empty" : ""}>
+            You have won{" "}
+            {(this.state.switchedCountWins / this.state.switchedCount) * 100}%
+            of the times by switching doors.
+          </h2>
+          <h1> Stay wins = {this.state.stayCountWins}</h1>
+          <h2 className={this.state.stayCount === 0 ? "empty" : ""}>
+            You have won{" "}
+            {(this.state.stayCountWins / this.state.stayCount) * 100}% of the
+            times by not switching doors.
+          </h2>
         </div>
 
         <button className="reset-button" onClick={e => this.resetDoors()}>
